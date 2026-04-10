@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+{% block title %}{{ college.college or college.name }} - College Details{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-primary">
+                <div class="card-body bg-primary text-white">
+                    <h2 class="card-title">{{ college.college or college.name }}</h2>
+                    
+                    {% if college.branch %}
+                        <p class="card-text mb-1">
+                            <strong>🎓 Branch:</strong> {{ college.branch }}
+                        </p>
+                    {% endif %}
+                    
+                    {% if college.category %}
+                        <p class="card-text mb-1">
+                            <strong>📋 Category:</strong> {{ college.category }}
+                        </p>
+                    {% endif %}
+                    
+                    {% if college.city %}
+                        <p class="card-text">
+                            <strong>📍 Location:</strong> {{ college.city|title }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow text-center border-success h-100">
+                <div class="card-body">
+                    {% if college.placement_rate %}
+                        <h5 class="text-success mb-3">✅ Placement Rate</h5>
+                        <h2 class="text-success">{{ college.placement_rate }}</h2>
+                    {% else %}
+                        <h5 class="text-muted">Placement Info</h5>
+                        <p class="text-muted">Data Available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial & Placement Stats -->
+    <div class="row mb-4">
+        <!-- Fees Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-info h-100">
+                <div class="card-body text-center">
+                    <div class="text-info mb-3" style="font-size: 2.5rem;">💰</div>
+                    <h6 class="card-title">Annual Fees</h6>
+                    <h5 class="text-info font-weight-bold">
+                        {% if college.fees_per_year %}
+                            {{ college.fees_per_year }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h5>
+                    <small class="text-muted">Per Year</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Package Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-success h-100">
+                <div class="card-body text-center">
+                    <div class="text-success mb-3" style="font-size: 2.5rem;">📊</div>
+                    <h6 class="card-title">Avg Package</h6>
+                    <h5 class="text-success font-weight-bold">
+                        {% if college.avg_package %}
+                            {{ college.avg_package }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h5>
+                    <small class="text-muted">Last Year</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Median Package Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-warning h-100">
+                <div class="card-body text-center">
+                    <div class="text-warning mb-3" style="font-size: 2.5rem;">📈</div>
+                    <h6 class="card-title">Median Package</h6>
+                    <h5 class="text-warning font-weight-bold">
+                        {% if college.median_package %}
+                            {{ college.median_package }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h5>
+                    <small class="text-muted">2024</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Highest Package Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-danger h-100">
+                <div class="card-body text-center">
+                    <div class="text-danger mb-3" style="font-size: 2.5rem;">⭐</div>
+                    <h6 class="card-title">Highest Package</h6>
+                    <h5 class="text-danger font-weight-bold">
+                        {% if college.highest_package %}
+                            {{ college.highest_package }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h5>
+                    <small class="text-muted">Max Offer</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Information -->
+    <div class="row mb-4">
+        <!-- Cutoff Information -->
+        {% if college.cutoff_2023 or college.cutoff_2024 or college.cutoff_percentile %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📊 Cutoff Percentile Trends</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Year</th>
+                                <th>Percentile</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if college.cutoff_2023 %}
+                            <tr>
+                                <td><strong>2023</strong></td>
+                                <td><span class="badge bg-info">{{ college.cutoff_2023 }}</span></td>
+                            </tr>
+                            {% endif %}
+                            {% if college.cutoff_2024 %}
+                            <tr>
+                                <td><strong>2024</strong></td>
+                                <td><span class="badge bg-success">{{ college.cutoff_2024 }}</span></td>
+                            </tr>
+                            {% endif %}
+                            {% if college.cutoff_percentile %}
+                            <tr>
+                                <td><strong>Current</strong></td>
+                                <td><span class="badge bg-warning text-dark">{{ college.cutoff_percentile }}</span></td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    <small class="text-muted">Higher percentile = Higher cutoff</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Hostel Information -->
+        {% if college.hostel_available or college.hostel_fee %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">🏠 Hostel Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Availability:</strong> 
+                        <span class="badge {% if college.hostel_available %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if college.hostel_available %}✓ Available{% else %}✗ Not Available{% endif %}
+                        </span>
+                    </p>
+                    {% if college.hostel_fee %}
+                    <p class="mb-2">
+                        <strong>Hostel Fee:</strong> <span class="text-info">{{ college.hostel_fee }} per year</span>
+                    </p>
+                    {% endif %}
+                    <hr>
+                    <h6>📌 Facilities:</h6>
+                    <ul class="small mb-0">
+                        <li>Separate boys and girls hostel</li>
+                        <li>WiFi connectivity</li>
+                        <li>24/7 security</li>
+                        <li>Mess facilities available</li>
+                        <li>Common recreational areas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Companies Hiring -->
+    {% if college.companies_hiring %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🏢 Top Recruiting Companies</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if college.companies_hiring is string %}
+                            {% set companies = college.companies_hiring.split(', ') %}
+                        {% else %}
+                            {% set companies = college.companies_hiring %}
+                        {% endif %}
+                        
+                        {% for company in companies[:15] %}
+                            <span class="badge bg-light text-dark border">{{ company }}</span>
+                        {% endfor %}
+                    </div>
+                    {% if college.companies_hiring|length > 15 %}
+                        <p class="small text-muted mt-2">+ {{ college.companies_hiring|length - 15 }} more companies</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Additional Info Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">📚 Program Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>⏱️ Duration:</strong> 4 Years (Full-Time)</p>
+                            <p><strong>🎓 Degree:</strong> B.E. / B.Tech</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>📖 Mode:</strong> Regular Classes</p>
+                            <p><strong>🏫 Campus:</strong> {% if college.city %}{{ college.city|title }}{% else %}Multi-city{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary btn-lg" id="askMoreBtn">
+                    💬 Ask More Questions
+                </button>
+                <a href="/" class="btn btn-outline-secondary btn-lg">
+                    ← Back to Recommendations
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Handle "Ask More Questions" button
+document.getElementById('askMoreBtn').addEventListener('click', function() {
+    const collegeName = "{{ college.college or college.name }}";
+    const branch = "{{ college.branch or '' }}";
+    const category = "{{ college.category or 'OPEN' }}";
+    
+    console.log('Opening enquiry for:', collegeName, branch, category);
+    
+    // Show college details info
+    alert('College Enquiry:\n\n' + 
+          'College: ' + collegeName + '\n' +
+          'Branch: ' + branch + '\n' +
+          'Category: ' + category + '\n\n' +
+          'Please scroll to use the chatbot modal on the recommendations page.');
+});
+</script>
+
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .text-info, .border-info {
+        --bs-info: #17a2b8;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced College Chatbot - Real-time Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .chat-container {
+            width: 100%;
+            max-width: 900px;
+            height: 85vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid rgba(255,255,255,0.2);
+        }
+        
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .chat-header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f7f9fc;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+        
+        .user-message .message-content {
+            background: #667eea;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px 12px 0 12px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        
+        .bot-message {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .bot-message .message-content {
+            background: white;
+            color: #333;
+            padding: 12px 16px;
+            border-radius: 12px 12px 12px 0;
+            max-width: 70%;
+            border: 1px solid #e0e0e0;
+            white-space: pre-wrap;
+        }
+        
+        .response-card {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .response-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .source-badge {
+            display: inline-block;
+            background: #e8f4f8;
+            color: #0277bd;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin: 5px 5px 5px 0;
+            font-weight: 600;
+        }
+        
+        .verified-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #4caf50;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+        
+        .verified-indicator:before {
+            content: "✓";
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .followup-question {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #e65100;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .followup-question:hover {
+            background: #ffe0b2;
+            transform: translateX(5px);
+        }
+        
+        .source-list {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+        
+        .source-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            font-size: 13px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .source-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+        
+        .source-url {
+            color: #0277bd;
+            text-decoration: none;
+            font-size: 11px;
+            word-break: break-all;
+        }
+        
+        .source-url:hover {
+            text-decoration: underline;
+        }
+        
+        .chat-input-area {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #college-select {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            min-width: 120px;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: none;
+            max-height: 100px;
+        }
+        
+        #user-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        #send-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+        
+        #send-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        
+        #send-btn:active {
+            transform: translateY(0);
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            font-size: 14px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .quick-commands {
+            padding: 10px;
+            background: #f0f2f5;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        
+        .quick-cmd {
+            display: inline-block;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin: 3px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: all 0.2s;
+        }
+        
+        .quick-cmd:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 90vh;
+            }
+            
+            .user-message .message-content,
+            .bot-message .message-content {
+                max-width: 90%;
+            }
+            
+            .chat-input-area {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            #college-select {
+                min-width: auto;
+            }
+        }
+        
+        .info-banner {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <h1>🎓 Advanced College Chatbot</h1>
+            <p>Real-time information with live web verification</p>
+        </div>
+        
+        <!-- Messages -->
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <div class="response-card">
+                        <h3>👋 Welcome to Advanced College Chatbot!</h3>
+                        <p style="margin-bottom: 10px;">I can help you with real-time college information verified from official sources.</p>
+                        <p style="margin-bottom: 10px;"><strong>Ask me about:</strong></p>
+                        <ul style="margin-left: 20px; font-size: 13px;">
+                            <li>College fees and costs</li>
+                            <li>Placement statistics and packages</li>
+                            <li>Admission cutoffs</li>
+                            <li>Hostel facilities</li>
+                            <li>Compare multiple colleges</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <div class="input-group">
+                <select id="college-select">
+                    <option value="">Select College...</option>
+                    <optgroup label="Mumbai">
+                        <option value="VJTI">VJTI</option>
+                        <option value="IIT Bombay">IIT Bombay</option>
+                        <option value="SPIT">SPIT</option>
+                        <option value="NIT Mumbai">NIT Mumbai</option>
+                        <option value="BITS Pilani Mumbai">BITS Pilani Mumbai</option>
+                    </optgroup>
+                    <optgroup label="Pune">
+                        <option value="COEP">COEP</option>
+                        <option value="MIT Pune">MIT Pune</option>
+                        <option value="PICT Pune">PICT Pune</option>
+                        <option value="DY Patil">DY Patil</option>
+                        <option value="AISSMS CoE Pune">AISSMS CoE Pune</option>
+                        <option value="Vishwakarma Institute (VIT) Pune">Vishwakarma Institute (VIT)</option>
+                        <option value="MESCOE Pune">MESCOE Pune</option>
+                    </optgroup>
+                    <optgroup label="Other Cities">
+                        <option value="RIT Ratnagiri">RIT Ratnagiri</option>
+                        <option value="WCE Sangli">WCE Sangli</option>
+                        <option value="GECA Aurangabad">GECA Aurangabad</option>
+                        <option value="VNIT Nagpur">VNIT Nagpur</option>
+                    </optgroup>
+                </select>
+                <textarea id="user-input" placeholder="Ask a question about the college..." rows="1"></textarea>
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const collegeSelect = document.getElementById('college-select');
+        
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+        
+        // Send message on Enter (but not Shift+Enter)
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        async function sendMessage() {
+            const college = collegeSelect.value;
+            const question = userInput.value.trim();
+            
+            if (!college || !question) {
+                alert('Please select a college and enter a question');
+                return;
+            }
+            
+            // Add user message to chat
+            addMessage(question, 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // Show loading indicator
+            const loadingId = showLoading();
+            
+            try {
+                // Send to backend
+                const response = await fetch('/advanced-college-enquiry', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        college: college,
+                        question: question
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove loading indicator
+                removeLoading(loadingId);
+                
+                if (data.success) {
+                    // Add bot response
+                    addBotResponse(data);
+                } else {
+                    addMessage('Error: ' + data.message, 'bot');
+                }
+            } catch (error) {
+                removeLoading(loadingId);
+                addMessage('⚠️ Error: ' + error.message, 'bot');
+            }
+        }
+        
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = text;
+            
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function formatAnswerText(text) {
+            if (!text) return '';
+            const safeText = text
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            return safeText
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n{2,}/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function addBotResponse(data) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            // Main response
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'response-card';
+            
+            const questionH3 = document.createElement('h3');
+            questionH3.textContent = data.college;
+            cardDiv.appendChild(questionH3);
+            
+            const answerText = document.createElement('p');
+            answerText.innerHTML = formatAnswerText(data.answer);
+            cardDiv.appendChild(answerText);
+            
+            // Verified indicator
+            if (data.verified) {
+                const verifiedDiv = document.createElement('div');
+                verifiedDiv.className = 'verified-indicator';
+                verifiedDiv.textContent = `Information verified from ${data.sources_count || 0} sources`;
+                cardDiv.appendChild(verifiedDiv);
+            }
+            
+            // Sources
+            if (data.sources && data.sources.length > 0) {
+                const sourcesLabel = document.createElement('div');
+                sourcesLabel.style.fontWeight = '600';
+                sourcesLabel.style.marginTop = '10px';
+                sourcesLabel.style.marginBottom = '5px';
+                sourcesLabel.textContent = '📌 Sources:';
+                cardDiv.appendChild(sourcesLabel);
+                
+                const sourcesList = document.createElement('div');
+                sourcesList.className = 'source-list';
+                
+                data.sources.forEach((source, idx) => {
+                    const sourceItem = document.createElement('div');
+                    sourceItem.className = 'source-item';
+                    
+                    const title = document.createElement('div');
+                    title.className = 'source-title';
+                    title.textContent = (idx + 1) + '. ' + source.title;
+                    sourceItem.appendChild(title);
+                    
+                    if (source.snippet) {
+                        const snippet = document.createElement('div');
+                        snippet.style.fontSize = '12px';
+                        snippet.style.color = '#666';
+                        snippet.style.marginBottom = '5px';
+                        snippet.textContent = source.snippet.substring(0, 100) + '...';
+                        sourceItem.appendChild(snippet);
+                    }
+                    
+                    if (source.url) {
+                        const url = document.createElement('a');
+                        url.className = 'source-url';
+                        url.href = source.url;
+                        url.target = '_blank';
+                        url.textContent = '🔗 Read more';
+                        sourceItem.appendChild(url);
+                    }
+                    
+                    sourcesList.appendChild(sourceItem);
+                });
+                
+                cardDiv.appendChild(sourcesList);
+            }
+            
+            // Follow-up question
+            if (data.followup) {
+                const followupDiv = document.createElement('div');
+                followupDiv.className = 'followup-question';
+                followupDiv.textContent = '💡 ' + data.followup;
+                followupDiv.onclick = () => {
+                    userInput.value = data.followup;
+                    userInput.focus();
+                };
+                cardDiv.appendChild(followupDiv);
+            }
+            
+            contentDiv.appendChild(cardDiv);
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function showLoading() {
+            const id = 'loading-' + Date.now();
+            const messageDiv = document.createElement('div');
+            messageDiv.id = id;
+            messageDiv.className = 'message bot-message';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content loading';
+            contentDiv.innerHTML = '<div class="spinner"></div> Searching for real-time information...';
+            
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return id;
+        }
+        
+        function removeLoading(id) {
+            const elem = document.getElementById(id);
+            if (elem) {
+                elem.remove();
+            }
+        }
+    </script>
+</body>
+</html>

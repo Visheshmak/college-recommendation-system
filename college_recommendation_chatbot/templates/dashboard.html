@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - College Recommendation System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Welcome back, {{ current_user.name }}!</h2>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('student_details') }}" class="btn btn-primary w-100 mb-2">Get Recommendations</a>
+                    <a href="{{ url_for('compare') }}" class="btn btn-secondary w-100 mb-2">Compare Colleges</a>
+                    <a href="{{ url_for('advanced_chatbot') }}" class="btn btn-info w-100">AI Chatbot</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Searches -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Recent Searches</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_searches %}
+                        {% for search in recent_searches %}
+                            <div class="mb-3 p-2 border rounded">
+                                <small class="text-muted">{{ search.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                                <div><strong>{{ search.branch }}</strong> - {{ search.category }}</div>
+                                <div>Percentile: {{ search.percentile }} | City: {{ search.city or 'Any' }}</div>
+                                <small class="text-success">{{ search.colleges_found }} colleges found</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No recent searches yet.</p>
+                        <a href="{{ url_for('student_details') }}" class="btn btn-sm btn-outline-primary">Start Your First Search</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorite Colleges -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Favorite Colleges</h5>
+                </div>
+                <div class="card-body">
+                    {% if favorite_colleges %}
+                        {% for college in favorite_colleges %}
+                            <div class="mb-3 p-2 border rounded">
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('college_details', college_name=college.college) }}" class="text-decoration-none">
+                                        {{ college.college }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">{{ college.city.title() }}</small>
+                                <br>
+                                <a href="{{ url_for('remove_favorite', college_name=college.college) }}" class="btn btn-sm btn-outline-danger mt-1">Remove</a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No favorite colleges yet.</p>
+                        <p class="small">Add colleges to favorites while browsing recommendations!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Your Activity Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h3 class="text-primary">{{ recent_searches|length }}</h3>
+                            <p>Recent Searches</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-success">{{ favorite_colleges|length }}</h3>
+                            <p>Favorite Colleges</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-info">0</h3>
+                            <p>Reports Generated</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-warning">0</h3>
+                            <p>Colleges Compared</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

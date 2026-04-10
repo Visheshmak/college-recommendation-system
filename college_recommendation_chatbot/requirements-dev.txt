@@ -1,0 +1,36 @@
+# Development Dependencies
+-r requirements.txt
+
+# Testing
+pytest>=7.0
+pytest-cov>=4.0
+pytest-flask>=1.2
+
+# Code Quality
+pylint>=2.15
+flake8>=5.0
+black>=22.0
+autopep8>=1.7
+
+# Linting
+stylelint>=14.0
+
+# Documentation
+sphinx>=5.0
+sphinx-rtd-theme>=1.0
+
+# Debugging
+ipdb>=0.13
+pdb-attach>=2.0
+
+# Development Server
+python-dotenv>=0.20
+
+# Performance
+flask-caching>=2.0
+
+# Database
+mongomock>=4.1
+
+# API Documentation
+flask-swagger>=0.2.14

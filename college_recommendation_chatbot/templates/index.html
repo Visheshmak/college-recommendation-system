@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Home | College Guide{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- 🔹 HERO SECTION -->
+<section class="hero text-center">
+    <div class="container">
+        <h1 class="display-5 fw-bold">MHT-CET College Recommendation System</h1>
+        <p class="lead mt-3">
+            Find the best engineering colleges based on your percentile, category, branch, and city.
+            Get instant answers using our intelligent college enquiry chatbot.
+        </p>
+        <button type="button" class="btn btn-light btn-lg mt-4" onclick="location.href='/student-details'; return false;">Get Started</button>
+
+    </div>
+</section>
+
+<!-- 🔹 FEATURES SECTION -->
+<section class="container mt-5 mb-5">
+    <h2 class="text-center mb-4">System Features</h2>
+
+    <div class="row text-center justify-content-center">
+
+        <div class="col-md-5 mb-3">
+            <div class="card shadow h-100 feature-card scroll-reveal">
+                <div class="card-body">
+                    <div class="feature-icon mb-2">📊</div>
+                    <h5>College Recommendation</h5>
+                    <p>Suggests eligible colleges using real MHT-CET cutoff data.</p>
+                    <a href="/student-details" class="btn btn-primary btn-sm">Try Now</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 mb-3">
+            <div class="card shadow h-100 feature-card scroll-reveal">
+                <div class="card-body">
+                    <div class="feature-icon mb-2">🤖</div>
+                    <h5>Advanced AI Chatbot</h5>
+                    <p>Real-time verified information from college websites with source citations.</p>
+                    <a href="/advanced-chatbot" class="btn btn-success btn-sm">Try Now</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/features" class="btn btn-outline-primary">View All Features</a>
+    </div>
+</section>
+
+{% endblock %}

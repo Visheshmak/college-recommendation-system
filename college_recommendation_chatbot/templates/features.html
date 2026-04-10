@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Features | College Guide{% endblock %}
+
+{% block styles %}
+<style>
+    .feature-detail {
+        transition: transform 0.3s ease;
+    }
+    .feature-detail:hover {
+        transform: translateY(-5px);
+    }
+    .feature-icon-large {
+        font-size: 3rem;
+        color: #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- 🔹 HERO SECTION -->
+<section class="hero text-center py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Explore Our Features</h1>
+        <p class="lead">Discover how our College Recommendation System can help you find the perfect college and get instant answers.</p>
+    </div>
+</section>
+
+<!-- 🔹 FEATURES DETAILS -->
+<section class="container mt-5 mb-5">
+    <div class="row">
+
+        <!-- College Recommendation -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow feature-detail h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon-large mb-3">📊</div>
+                    <h4>College Recommendation</h4>
+                    <p>Get personalized college recommendations based on your MHT-CET percentile, category, preferred branch, and city. Our system uses real cutoff data to suggest eligible colleges with high, medium, or low chances of admission.</p>
+                    <ul class="list-unstyled">
+                        <li>✅ Real-time cutoff analysis</li>
+                        <li>✅ Category-wise filtering</li>
+                        <li>✅ Branch and city preferences</li>
+                    </ul>
+                    <a href="/student-details" class="btn btn-primary">Try Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced AI Chatbot -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow feature-detail h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon-large mb-3">🤖</div>
+                    <h4>Advanced AI Chatbot</h4>
+                    <p>Get real-time verified information from official college websites. Our chatbot scrapes live data, compares multiple sources, and provides transparent citations for every answer.</p>
+                    <ul class="list-unstyled">
+                        <li>✅ Real-time web verification</li>
+                        <li>✅ Source citations & links</li>
+                        <li>✅ Multi-college comparison</li>
+                        <li>✅ Interactive follow-ups</li>
+                    </ul>
+                    <a href="/advanced-chatbot" class="btn btn-success">Try Now</a>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</section>
+
+{% endblock %}

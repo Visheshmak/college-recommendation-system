@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Colleges - College Recommendation System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">Compare Colleges</h2>
+        </div>
+    </div>
+
+    {% if colleges %}
+        <div class="row">
+            {% for college in colleges %}
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ college.college }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <strong>City:</strong> {{ college.city.title() }}
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong>Fees:</strong> {{ college.fees_per_year or 'N/A' }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-sm-6">
+                                    <strong>Avg Package:</strong> {{ college.avg_package or 'N/A' }}
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong>Placement Rate:</strong> {{ college.placement_rate or 'N/A' }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-sm-6">
+                                    <strong>Hostel:</strong> {{ 'Available' if college.hostel_available else 'Not Available' }}
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong>Hostel Fee:</strong> {{ college.hostel_fee or 'N/A' }}
+                                </div>
+                            </div>
+                            {% if college.facilities %}
+                                <div class="mt-3">
+                                    <strong>Facilities:</strong>
+                                    <p class="mb-0">{{ college.facilities }}</p>
+                                </div>
+                            {% endif %}
+                            <div class="mt-3">
+                                <a href="{{ url_for('college_details', college_name=college.college) }}" class="btn btn-primary btn-sm">View Details</a>
+                                {% if current_user.is_authenticated %}
+                                    <a href="{{ url_for('add_favorite', college_name=college.college) }}" class="btn btn-outline-success btn-sm">Add to Favorites</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Detailed Comparison</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Feature</th>
+                                        {% for college in colleges %}
+                                            <th>{{ college.college }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>City</strong></td>
+                                        {% for college in colleges %}
+                                            <td>{{ college.city.title() }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Fees per Year</strong></td>
+                                        {% for college in colleges %}
+                                            <td>{{ college.fees_per_year or 'N/A' }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Average Package</strong></td>
+                                        {% for college in colleges %}
+                                            <td>{{ college.avg_package or 'N/A' }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Placement Rate</strong></td>
+                                        {% for college in colleges %}
+                                            <td>{{ college.placement_rate or 'N/A' }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Hostel Available</strong></td>
+                                        {% for college in colleges %}
+                                            <td>{{ 'Yes' if college.hostel_available else 'No' }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Hostel Fee</strong></td>
+                                        {% for college in colleges %}
+                                            <td>{{ college.hostel_fee or 'N/A' }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h4>No Colleges Selected for Comparison</h4>
+                        <p class="mb-4">Select colleges from your recommendations or search results to compare them.</p>
+                        <a href="{{ url_for('student_details') }}" class="btn btn-primary">Get Recommendations</a>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary ms-2">Go to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

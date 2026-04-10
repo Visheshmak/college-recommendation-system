@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+{% block title %}Eligible Colleges{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h3 class="text-center">
+                Eligible Colleges Based on Your Percentile
+                {% if student_name %}<br><small class="text-muted">Hello, {{ student_name }}!</small>{% endif %}
+            </h3>
+        </div>
+        <div class="col-md-4">
+            <button type="button" class="btn btn-primary btn-lg w-100" data-bs-toggle="modal" data-bs-target="#reportModal">
+                📄 Generate & Email Report
+            </button>
+        </div>
+    </div>
+
+    {% if colleges %}
+        <div class="row">
+            {% for college in colleges %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow h-100 {% if college.match_type == 'alternative_category' %}border-warning{% else %}border-success{% endif %}">
+                    <div class="card-body">
+                        {% if college.match_type == 'exact' %}
+                        <span class="badge bg-success mb-2">✓ Your Category</span>
+                        {% elif college.match_type == 'alternative_category' %}
+                        <span class="badge bg-warning text-dark mb-2">⚠ Alternative Category</span>
+                        {% endif %}
+                        {% if college.exam_type %}
+                        <span class="badge bg-secondary mb-2">{{ college.exam_type }}</span>
+                        {% endif %}
+                        
+                        <h5>{{ college.college }}</h5>
+
+                        <p><strong>Branch:</strong> {{ college.branch }}</p>
+                        <p><strong>Category:</strong> {{ college.category }}</p>
+                        <p><strong>Cutoff:</strong> {{ college.cutoff }}</p>
+                        <p>
+<strong>Chance:</strong>
+<span class="badge
+{% if college.chance == 'High' %}bg-success
+{% elif college.chance == 'Medium' %}bg-warning
+{% else %}bg-danger{% endif %}">
+{{ college.chance }}
+</span>
+</p>
+{% if college.near %}
+<span class="badge bg-info text-white">
+    Near Cutoff
+</span>
+{% endif %}
+
+
+
+                        <a href="/college/{{ college.college }}"
+                           class="btn btn-outline-secondary btn-sm">
+                           View Details
+                        </a>
+
+                        <a href="#" class="btn btn-outline-primary btn-sm ms-2"
+                           onclick="openEnquiry('{{ college.college }}', '{{ college.branch }}', '{{ college.category }}')">
+                           💬 Enquire
+                        </a>
+
+                        {% if current_user.is_authenticated %}
+                        <a href="/add_favorite/{{ college.college }}"
+                           class="btn btn-outline-success btn-sm ms-2">
+                           ❤️ Favorite
+                        </a>
+
+                        <input type="checkbox" class="btn-check compare-checkbox" id="compare_{{ loop.index }}" value="{{ college.college }}" onchange="updateCompareButton()">
+                        <label class="btn btn-outline-info btn-sm ms-2" for="compare_{{ loop.index }}">Compare</label>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if current_user.is_authenticated %}
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                <button id="compareBtn" class="btn btn-info btn-lg" style="display: none;" onclick="compareSelected()">
+                    🔍 Compare Selected Colleges (0)
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-danger text-center">
+            {% if city %}
+                No colleges found in <strong>{{ city }}</strong> that match your criteria. 
+                Try selecting a different city or leave the city field blank to see colleges from all cities.
+            {% else %}
+                No colleges found where you meet the cutoff.
+            {% endif %}
+        </div>
+    {% endif %}
+
+</div>
+
+<!-- Report Generation Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="reportModalLabel">📄 Generate & Send Report</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="mb-3">Your personalized PDF report with all recommended colleges will be:</p>
+        <ul class="list-unstyled">
+          <li>✓ Generated with your details</li>
+          <li>✓ Formatted professionally</li>
+          <li>✓ Sent to your email address</li>
+        </ul>
+        <div id="reportLoading" style="display: none;">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Generating your report...</p>
+        </div>
+        <div id="reportStatus" style="display: none;"></div>
+      </div>
+      <div class="modal-footer" id="modalFooter">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="generateReport()">Generate & Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function generateReport() {
+    // Show loading state
+    document.getElementById('reportLoading').style.display = 'block';
+    document.getElementById('modalFooter').style.display = 'none';
+    
+    try {
+        const response = await fetch('/generate-report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        const reportStatus = document.getElementById('reportStatus');
+        
+        if (data.success) {
+            reportStatus.innerHTML = `
+                <div class="alert alert-success" role="alert">
+                    <h5>✓ Success!</h5>
+                    <p>${data.message}</p>
+                    <small>Check your email inbox and spam folder.</small>
+                </div>
+            `;
+        } else {
+            reportStatus.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <h5>✗ Error</h5>
+                    <p>${data.message}</p>
+                </div>
+            `;
+        }
+        
+        reportStatus.style.display = 'block';
+        document.getElementById('reportLoading').style.display = 'none';
+        
+        // Show close button only
+        document.getElementById('modalFooter').innerHTML = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>';
+        document.getElementById('modalFooter').style.display = 'block';
+        
+    } catch (error) {
+        document.getElementById('reportLoading').style.display = 'none';
+        document.getElementById('reportStatus').innerHTML = `
+            <div class="alert alert-danger" role="alert">
+                <h5>✗ Error</h5>
+                <p>${error.message}</p>
+            </div>
+        `;
+        document.getElementById('reportStatus').style.display = 'block';
+        document.getElementById('modalFooter').style.display = 'block';
+    }
+}
+
+// College Enquiry Functions
+let selectedCollege = {};
+
+function openEnquiry(collegeName, branch, category) {
+    selectedCollege = {
+        name: collegeName,
+        branch: branch,
+        category: category
+    };
+    
+    document.getElementById('enquiryCollegeName').innerText = collegeName;
+    document.getElementById('enquiryMessages').innerHTML = '';
+    document.getElementById('enquiryInput').value = '';
+    document.getElementById('enquiryInput').focus();
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('enquiryModal'));
+    modal.show();
+}
+
+async function sendEnquiry() {
+    const question = document.getElementById('enquiryInput').value.trim();
+    
+    if (!question) {
+        alert('Please type a question');
+        return;
+    }
+    
+    const messagesContainer = document.getElementById('enquiryMessages');
+    
+    // Show user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'mb-2 p-2 bg-light rounded';
+    userMsg.innerHTML = `<strong>You:</strong> ${question}`;
+    messagesContainer.appendChild(userMsg);
+    
+    // Show loading
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'mb-2 p-2 bg-white rounded';
+    loadingMsg.id = 'loadingMsg';
+    loadingMsg.innerHTML = '<em style="color: #666;">🤖 Thinking...</em>';
+    messagesContainer.appendChild(loadingMsg);
+    
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Clear input
+    document.getElementById('enquiryInput').value = '';
+    
+    try {
+        const response = await fetch('/college-enquiry', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                college: selectedCollege.name,
+                branch: selectedCollege.branch,
+                category: selectedCollege.category,
+                question: question
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Remove loading message
+        const loading = document.getElementById('loadingMsg');
+        if (loading) loading.remove();
+        
+        if (data.success) {
+            const botMsg = document.createElement('div');
+            botMsg.className = 'mb-2 p-2 bg-info bg-opacity-10 rounded';
+            botMsg.innerHTML = `<strong>Bot:</strong><br>${data.answer.replace(/\n/g, '<br>')}`;
+            messagesContainer.appendChild(botMsg);
+        } else {
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'mb-2 p-2 bg-danger bg-opacity-10 rounded text-danger';
+            errorMsg.innerHTML = `<strong>Error:</strong> ${data.message}`;
+            messagesContainer.appendChild(errorMsg);
+        }
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+    } catch (error) {
+        const loading = document.getElementById('loadingMsg');
+        if (loading) loading.remove();
+        
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'mb-2 p-2 bg-danger bg-opacity-10 rounded text-danger';
+        errorMsg.innerHTML = `<strong>Error:</strong> ${error.message}`;
+        messagesContainer.appendChild(errorMsg);
+    }
+}
+
+// Allow Enter key to send
+document.addEventListener('DOMContentLoaded', function() {
+    const enquiryInput = document.getElementById('enquiryInput');
+    if (enquiryInput) {
+        enquiryInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendEnquiry();
+            }
+        });
+    }
+});
+
+// Compare functionality
+function updateCompareButton() {
+    const checkboxes = document.querySelectorAll('.compare-checkbox:checked');
+    const compareBtn = document.getElementById('compareBtn');
+    const count = checkboxes.length;
+
+    if (count >= 2) {
+        compareBtn.style.display = 'inline-block';
+        compareBtn.innerHTML = `🔍 Compare Selected Colleges (${count})`;
+    } else {
+        compareBtn.style.display = 'none';
+    }
+}
+
+function compareSelected() {
+    const checkboxes = document.querySelectorAll('.compare-checkbox:checked');
+    const selectedColleges = Array.from(checkboxes).map(cb => cb.value);
+
+    if (selectedColleges.length >= 2) {
+        const url = `/compare?college1=${encodeURIComponent(selectedColleges[0])}&college2=${encodeURIComponent(selectedColleges[1])}`;
+        window.location.href = url;
+    }
+}
+</script>
+
+<!-- College Enquiry Modal -->
+<div class="modal fade" id="enquiryModal" tabindex="-1" aria-labelledby="enquiryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="enquiryModalLabel">
+          💬 Ask About <span id="enquiryCollegeName"></span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="enquiryMessages" style="height: 350px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9;">
+          <div class="p-2 bg-info bg-opacity-10 rounded">
+            <small><strong>Bot:</strong> Hi! I'm here to help! Ask me anything about fees, placements, cutoffs, hostel, or academics. 📚</small>
+          </div>
+        </div>
+        <div class="input-group">
+          <input type="text" id="enquiryInput" class="form-control" placeholder="Type your question... (e.g., 'What are the fees?')" autocomplete="off">
+          <button class="btn btn-primary" type="button" onclick="sendEnquiry()">Send</button>
+        </div>
+        <small class="text-muted mt-2">💡 Try asking: 'What are the fees?', 'What's the average package?', 'Tell me about placements'</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

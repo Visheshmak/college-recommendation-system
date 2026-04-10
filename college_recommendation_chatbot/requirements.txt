@@ -1,0 +1,14 @@
+flask
+flask-mail
+flask-login
+flask-wtf
+email-validator
+pymongo
+reportlab
+python-dotenv
+groq
+openai
+requests
+beautifulsoup4
+lxml
+werkzeug

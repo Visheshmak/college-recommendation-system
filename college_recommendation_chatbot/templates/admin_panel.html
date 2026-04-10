@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+    <h3 class="text-center">Admin Panel</h3>
+
+    <div class="alert alert-info mt-3">
+        <h5>Admin Summary</h5>
+        <p class="mb-1"><strong>Recent user searches:</strong> {{ recent_searches|length }}</p>
+        <p class="mb-0"><strong>Total emails sent:</strong> {{ emails_sent }}</p>
+    </div>
+
+    <div class="card shadow mt-3">
+        <div class="card-body">
+            <form method="post">
+                <input class="form-control mb-2" name="college" placeholder="College Name" required>
+                <input class="form-control mb-2" name="pattern" placeholder="Keyword" required>
+                <textarea class="form-control mb-2" name="response" placeholder="Response" required></textarea>
+                <button class="btn btn-success w-100">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow mt-4">
+        <div class="card-header bg-white">
+            <strong>Latest Searches</strong>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% if recent_searches %}
+                {% for item in recent_searches %}
+                <li class="list-group-item">
+                    <div><strong>{{ item.source|replace("_", " ")|title }}:</strong> {{ item.query }}</div>
+                    <div class="text-muted small">
+                        {% if item.college %}College: {{ item.college }}{% endif %}
+                        {% if item.branch %} | Branch: {{ item.branch }}{% endif %}
+                        {% if item.category %} | Category: {{ item.category }}{% endif %}
+                        | {{ item.timestamp }}
+                    </div>
+                </li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item text-muted">No search records yet.</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="list-group mt-4">
+        {% for row in data %}
+        <div class="list-group-item">
+            <strong>{{ row.college or row.get('college', 'College') }}</strong>
+            | <span class="text-muted">{{ row.pattern or row.get('pattern', '') }}</span>
+            → <span>{{ row.response or row.get('response', '') }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="/" class="btn btn-link">Home</a>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

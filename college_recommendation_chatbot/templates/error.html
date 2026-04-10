@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <h4 class="alert-heading">❌ Error Occurred</h4>
+                <p>{{ error }}</p>
+                <a href="/" class="btn btn-primary mt-3">
+                    ← Go Back to Home
+                </a>
+                <button type="button" class="btn btn-outline-danger mt-3" onclick="history.back()">
+                    ← Go Back
+                </button>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p>Common issues and solutions:</p>
+                    <ul>
+                        <li><strong>Email not sending:</strong> Check your .env file and verify email credentials</li>
+                        <li><strong>MongoDB error:</strong> Ensure MongoDB is running on your system</li>
+                        <li><strong>No results:</strong> Run <code>python db_init.py</code> to load college data</li>
+                        <li><strong>Session expired:</strong> Go back and submit the form again</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
