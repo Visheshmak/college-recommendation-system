@@ -29,9 +29,10 @@ def check_mongodb():
     
     try:
         from pymongo import MongoClient
-        client = MongoClient("mongodb://localhost:27017", serverSelectionTimeoutMS=2000)
+        from mongo_db import MONGODB_URI
+        client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=2000)
         client.server_info()  # Force connection test
-        print("✅ MongoDB is running on localhost:27017")
+        print("✅ MongoDB is reachable via MONGODB_URI")
         return True
     except Exception as e:
         print(f"❌ MongoDB is not running!")

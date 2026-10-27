@@ -213,7 +213,7 @@ git init
 git add .
 git commit -m "Initial commit with professional features"
 git branch -M main
-git remote add origin https://github.com/yourusername/college-recommendation-system.git
+git remote add origin https://github.com/Visheshmak/college-recommendation-system.git
 git push -u origin main
 ```
 
