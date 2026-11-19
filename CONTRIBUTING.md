@@ -49,7 +49,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 1. **Fork and clone the repository**
 ```bash
-git clone https://github.com/yourusername/college-recommendation-system.git
+git clone https://github.com/Visheshmak/college-recommendation-system.git
 cd college-recommendation-system
 ```
 

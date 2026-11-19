@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = MongoClient("mongodb://localhost:27017")
+MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+client = MongoClient(MONGODB_URI)
 
 db = client["college_recommendation"]
 

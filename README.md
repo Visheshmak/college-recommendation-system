@@ -1,320 +1,97 @@
-# 🎓 MHT-CET College Recommendation & Enquiry System
+# MHT-CET College Recommendation & Enquiry System
 
-A comprehensive AI-powered platform for MHT-CET exam takers to find, compare, and get instant verified information about engineering colleges in Maharashtra.
+**A Flask + MongoDB web app that helps Maharashtra engineering aspirants find, compare, and ask questions about colleges based on their MHT-CET percentile.**
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue)
-![Flask](https://img.shields.io/badge/Flask-2.0+-green)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green)
+[![CI](https://github.com/Visheshmak/college-recommendation-system/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Visheshmak/college-recommendation-system/actions/workflows/ci-cd.yml)
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?logo=flask&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-## ✨ Features
+## Features
 
-### Core Functionalities
-- **Smart College Recommendation** - Get personalized college suggestions based on percentile, category, branch, and location
-- **AI Chatbot** - Real-time verified college information from official websites with source citations
-- **Advanced Search** - Filter colleges by multiple criteria (fees, placements, location, branch, rating)
-- **College Comparison** - Side-by-side comparison of colleges with custom metrics
-- **Saved Colleges** - Bookmark favorite colleges and manage your preferences
-- **User Reviews** - 5-star rating system and alumni reviews
-- **PDF Reports** - Generate and email detailed recommendation reports
+- **Personalised recommendations**: ranks colleges by admission chance and match score. The inputs are the student's percentile, category, preferred branch, and city, compared against historical cutoffs (`recommender.py`).
+- **College enquiry chatbot**: rule-based intent matching. An optional LLM layer (Groq, OpenAI, or local Ollama) and an advanced mode answer from college websites (`advanced_chatbot.py`, `web_scraper.py`).
+- **Search and comparison**: filter by city, branch, fees, and rating, and compare colleges side by side.
+- **User accounts**: registration and login with Flask-Login, Werkzeug password hashing, a personal dashboard, and saved colleges.
+- **PDF reports**: generates a recommendation report with ReportLab and can email it via Flask-Mail.
+- **REST API**: `/api/colleges`, `/api/college/<name>`, `/api/search`, `/api/recommend`, `/api/saved-colleges`, `/api/health`, with input validation and per-client rate limiting.
+- **Admin panel** for managing college data.
 
-### Technical Features
-- **User Authentication** - Secure login/registration with Flask-Login
-- **Dark Mode** - Toggle between light and dark themes
-- **Responsive Design** - Mobile-friendly interface with Bootstrap 5
-- **Real-time Search** - Fast search with MongoDB indexing
-- **REST API** - Programmatic access to college data
-- **Rate Limiting** - Protection against abuse
-- **Email Integration** - Automated report delivery
+## Architecture
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.8+
-- MongoDB Atlas account
-- pip package manager
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/college-recommendation-system.git
-cd college-recommendation-system
+```mermaid
+flowchart LR
+  U[Browser<br/>Jinja2 + Bootstrap] --> F[Flask app<br/>app.py]
+  C[API clients] --> A[REST blueprint<br/>api_routes.py]
+  F --> R[Recommender]
+  F --> B[Chatbot<br/>rules + optional LLM]
+  F --> P[PDF report + email]
+  A --> R
+  R --> M[(MongoDB)]
+  B --> M
+  F --> M
+  A --> M
 ```
 
-2. **Create virtual environment**
-```bash
-python -m venv venv
-source venv/Scripts/activate  # Windows
-source venv/bin/activate      # Mac/Linux
-```
+## Tech stack
 
-3. **Install dependencies**
+**Backend:** Python, Flask, Flask-Login, Flask-WTF, Flask-Mail · **Database:** MongoDB (PyMongo) · **AI:** Groq / OpenAI / Ollama (optional) · **Other:** ReportLab, BeautifulSoup · **Frontend:** Jinja2, Bootstrap · **Quality:** pytest, mongomock, flake8, GitHub Actions
+
+## Getting started
+
+Prerequisites: Python 3.10+ and a MongoDB instance (local or Atlas).
+
 ```bash
+git clone https://github.com/Visheshmak/college-recommendation-system.git
+cd college-recommendation-system/college_recommendation_chatbot
+
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+
+cp .env.example .env             # set MONGODB_URI, SECRET_KEY, mail and optional LLM settings
+python db_init.py                # seed college data
+python app.py                    # http://localhost:5000
 ```
 
-4. **Setup environment variables**
+### Configuration
+
+| Variable | Purpose |
+| --- | --- |
+| `MONGODB_URI` | MongoDB connection string (default `mongodb://localhost:27017`) |
+| `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_DEFAULT_SENDER` | SMTP settings for emailing reports |
+| `USE_LLM`, `LLM_PROVIDER`, `LLM_MODEL`, `LLM_API_KEY`, `OLLAMA_URL` | Optional LLM-backed chatbot answers |
+
+## Testing
+
 ```bash
-cp .env.example .env
-# Edit .env with your credentials:
-# - MONGODB_URI (MongoDB connection string)
-# - GEMINI_API_KEY (Google Gemini API key)
-# - SMTP settings (for email functionality)
+pip install -r college_recommendation_chatbot/requirements-dev.txt
+pytest                           # run from the repository root; needs MongoDB on localhost:27017
 ```
 
-5. **Initialize database**
-```bash
-python db_init.py
-```
+CI runs flake8 and the pytest suite on Python 3.10, 3.11, and 3.12 with a MongoDB service container.
 
-6. **Run the application**
-```bash
-python app.py
-```
+## Project structure
 
-Visit `http://localhost:5000` in your browser.
-
-## 📁 Project Structure
-
-```
+```text
 college_recommendation_chatbot/
-├── app.py                      # Main Flask application
-├── requirements.txt            # Python dependencies
-├── .env.example               # Environment variables template
-├── README.md                  # This file
-├── CONTRIBUTING.md            # Contribution guidelines
-├── LICENSE                    # MIT License
-│
-├── templates/                 # HTML templates
-│   ├── base.html             # Base template
-│   ├── index.html            # Home page
-│   ├── student_details.html  # Student input form
-│   ├── recommend.html        # Recommendations page
-│   ├── college_details.html  # College details
-│   ├── compare.html          # College comparison
-│   ├── login.html            # Login page
-│   ├── register.html         # Registration page
-│   ├── dashboard.html        # User dashboard
-│   └── features.html         # Features page
-│
-├── static/                    # Static files
-│   ├── style.css             # Custom styles
-│   ├── bootstrap.min.css     # Bootstrap framework
-│   └── images/               # Images and icons
-│
-├── mongo_db.py               # MongoDB connection
-├── recommender.py            # College recommendation logic
-├── chatbot_logic.py          # Chatbot responses
-├── advanced_chatbot.py       # AI-powered chatbot
-├── email_service.py          # Email functionality
-├── report_generator.py       # PDF report generation
-├── web_scraper.py            # Web scraping utilities
-└── reports/                  # Generated reports directory
+  app.py                 Flask app: pages, auth, recommendations, reports, admin
+  api_routes.py          REST API blueprint
+  recommender.py         admission-chance and match-score logic
+  chatbot_logic.py       rule-based chatbot
+  advanced_chatbot.py    chatbot backed by scraped college information
+  llm_integration.py     Groq / OpenAI / Ollama providers
+  report_generator.py    PDF reports
+  email_service.py       report delivery
+  validators.py          input validation and rate limiting
+  mongo_db.py            database connection and collections
+  templates/, static/    UI
+  tests/                 pytest suite
 ```
 
-## 🔧 Configuration
+More docs: [API](API_DOCUMENTATION.md) · [Database schema](DATABASE_SCHEMA.md) · [Deployment](DEPLOYMENT.md) · [Contributing](CONTRIBUTING.md)
 
-### Environment Variables (.env)
-```env
-# MongoDB
-MONGODB_URI=your_mongodb_connection_string
+## License
 
-# Gemini API
-GEMINI_API_KEY=your_gemini_api_key
-
-# Email Service (SMTP)
-SMTP_SERVER=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
-
-# Flask
-FLASK_ENV=development
-SECRET_KEY=your_secret_key
-```
-
-## 📚 Usage
-
-### For Students
-1. Visit the homepage
-2. Click "Get Started" or "Try Now"
-3. Fill in your exam details (percentile, category, branch)
-4. Get personalized college recommendations
-5. Save favorite colleges
-6. Ask questions in the AI chatbot
-7. Generate and download PDF reports
-
-### For Developers
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
-
-## 🔌 REST API
-
-### Endpoints
-
-#### Get Colleges
-```bash
-GET /api/colleges?city=Mumbai&branch=CSE&limit=10
-```
-
-#### Get College Details
-```bash
-GET /api/college/<college_name>
-```
-
-#### Search Colleges
-```bash
-POST /api/search
-Content-Type: application/json
-
-{
-  "query": "search term",
-  "filters": {
-    "city": "Mumbai",
-    "fees_min": 1000000,
-    "fees_max": 2000000,
-    "rating_min": 4.0
-  }
-}
-```
-
-#### Save College
-```bash
-POST /api/saved-colleges
-Content-Type: application/json
-
-{
-  "college_name": "COEP",
-  "user_id": "user_id"
-}
-```
-
-## 🧪 Testing
-
-Run tests with pytest:
-```bash
-pytest tests/ -v
-pytest tests/ --cov=  # With coverage
-```
-
-## 📊 Database Schema
-
-### Students Collection
-```javascript
-{
-  _id: ObjectId,
-  name: String,
-  email: String,
-  percentile: Float,
-  category: String,
-  branch: String,
-  city: String,
-  created_at: Date
-}
-```
-
-### Colleges Collection
-```javascript
-{
-  _id: ObjectId,
-  name: String,
-  city: String,
-  branch: String,
-  fees: Number,
-  placements: String,
-  cutoff: Float,
-  rating: Float,
-  reviews_count: Number
-}
-```
-
-See [Database Documentation](docs/DATABASE.md) for complete schema.
-
-## 🔐 Security
-
-- ✅ Input validation on all forms
-- ✅ SQL injection prevention (using parameterized queries)
-- ✅ CSRF protection enabled
-- ✅ Password hashing with Werkzeug
-- ✅ Rate limiting on API endpoints
-- ✅ Secure session management
-- ✅ HTTPS recommended for production
-
-## 🚢 Deployment
-
-### Heroku
-```bash
-heroku create your-app-name
-git push heroku main
-```
-
-### Docker
-```bash
-docker build -t college-recommendation .
-docker run -p 5000:5000 college-recommendation
-```
-
-See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions.
-
-## 📈 Performance
-
-- Page load time: < 2 seconds
-- Search response: < 500ms
-- API response: < 200ms
-- Database queries optimized with indexing
-- Caching implemented for frequently accessed data
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
-- **Name** - Initial work - [GitHub](https://github.com/yourusername)
-
-## 🙏 Acknowledgments
-
-- MHT-CET authority for exam data
-- Bootstrap for UI framework
-- Google Gemini for AI capabilities
-- MongoDB for database services
-- Flask community for the framework
-
-## 📞 Support
-
-- 📧 Email: support@example.com
-- 🐛 Report bugs: [GitHub Issues](../../issues)
-- 💡 Request features: [GitHub Discussions](../../discussions)
-- 📖 Documentation: [Wiki](../../wiki)
-
-## 🎯 Roadmap
-
-- [ ] Mobile app (iOS/Android)
-- [ ] Advanced ML recommendations
-- [ ] Internship tracking
-- [ ] Alumni network
-- [ ] Live chat support
-- [ ] Video reviews
-- [ ] Hostel ratings
-- [ ] Placement tracking
-
-## 📊 Statistics
-
-- **Total Colleges**: 50+
-- **Active Users**: Growing
-- **Average Rating**: 4.5/5
-- **Successful Recommendations**: 1000+
-
----
-
-Made with ❤️ by College Recommendation Team
+[MIT](LICENSE)
